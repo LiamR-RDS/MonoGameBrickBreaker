@@ -49,8 +49,6 @@ namespace MonoGameBrickBreaker.Core
             Color.Red, Color.OrangeRed, Color.Orange, Color.Yellow, Color.LimeGreen, Color.DeepSkyBlue
         };
 
-        public readonly static bool IsMobile = OperatingSystem.IsAndroid() || OperatingSystem.IsIOS();
-
         public MonoGameBrickBreakerGame()
         {
             graphics = new GraphicsDeviceManager(this)
