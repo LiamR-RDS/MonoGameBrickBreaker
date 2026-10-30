@@ -41,8 +41,15 @@ You can run the project directly from the command line or from your IDE.
 
 * **Move Paddle:** Left / Right arrow keys, `A` / `D`, Mouse movement, or GamePad left stick
 * **Launch Ball / Action:** `Space`, `Enter`, Left mouse click, or GamePad `A` button
-* **Restart Game:** `Space` (on Game Over or Victory screens)
+* **Main Menu:** `Up` / `Down` and `Enter`, or click a button
+* **Level Select:** Arrow keys and `Enter`, or click a level
+* **Level Editor:** Arrow keys move the cursor, `Space` toggles a brick, `Enter` saves, and `Page Up` / `Page Down` switches levels
+* **Restart / Next Level:** `Space` (on Game Over or Victory screens)
 * **Exit:** `Escape` or GamePad `Back` button
+
+## Levels
+
+Levels are stored as readable text files in `Content/Levels` with the `.level` extension. Each file contains six rows of ten characters: `#` is a brick and `.` is empty space. The in-game level editor saves changes back to the selected file.
 
 ---
 
