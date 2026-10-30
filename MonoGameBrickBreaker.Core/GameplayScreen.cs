@@ -17,6 +17,7 @@ public enum GameplayState
 public sealed class GameplayScreen
 {
     private readonly LevelDefinition[] levels;
+    private readonly ProceduralSoundEffects soundEffects;
     private readonly List<Rectangle> bricks = new();
     private readonly List<Color> brickColors = new();
     private readonly List<int> brickPoints = new();
@@ -29,9 +30,10 @@ public sealed class GameplayScreen
     private int lives;
     private int lastMouseX;
 
-    public GameplayScreen(LevelDefinition[] levels)
+    public GameplayScreen(LevelDefinition[] levels, ProceduralSoundEffects soundEffects)
     {
         this.levels = levels;
+        this.soundEffects = soundEffects;
     }
 
     public int CurrentLevelIndex => currentLevelIndex;
@@ -135,6 +137,7 @@ public sealed class GameplayScreen
         float angle = MathHelper.ToRadians(-90 + Random.Shared.Next(-30, 31));
         ballVelocity = new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle)) * GameConstants.BallBaseSpeed;
         state = GameplayState.Playing;
+        soundEffects.Play(ProceduralSound.Launch);
     }
 
     private void MovePaddle(KeyboardState keys, MouseState mouse, TouchCollection touches, GamePadState gamepad,
@@ -160,18 +163,21 @@ public sealed class GameplayScreen
         {
             ballPosition.X = 0;
             ballVelocity.X = Math.Abs(ballVelocity.X);
+            soundEffects.Play(ProceduralSound.WallHit);
         }
 
         if (ballPosition.X + GameConstants.BallSize > GameConstants.ScreenWidth)
         {
             ballPosition.X = GameConstants.ScreenWidth - GameConstants.BallSize;
             ballVelocity.X = -Math.Abs(ballVelocity.X);
+            soundEffects.Play(ProceduralSound.WallHit);
         }
 
         if (ballPosition.Y < 0)
         {
             ballPosition.Y = 0;
             ballVelocity.Y = Math.Abs(ballVelocity.Y);
+            soundEffects.Play(ProceduralSound.WallHit);
         }
 
         var ball = new Rectangle((int)ballPosition.X, (int)ballPosition.Y,
@@ -182,6 +188,7 @@ public sealed class GameplayScreen
             float speed = ballVelocity.Length();
             ballVelocity = new Vector2(offset, -(float)Math.Sqrt(1 - offset * offset)) * speed;
             ballPosition.Y = paddle.Top - GameConstants.BallSize;
+            soundEffects.Play(ProceduralSound.PaddleHit);
         }
 
         for (int i = 0; i < bricks.Count; i++)
@@ -195,15 +202,28 @@ public sealed class GameplayScreen
             brickColors.RemoveAt(i);
             brickPoints.RemoveAt(i);
             ballVelocity *= 1.01f;
+            soundEffects.Play(ProceduralSound.BrickBreak);
             break;
         }
 
-        if (bricks.Count == 0) state = GameplayState.Won;
+        if (bricks.Count == 0)
+        {
+            state = GameplayState.Won;
+            soundEffects.Play(ProceduralSound.Win);
+        }
         else if (ballPosition.Y > GameConstants.ScreenHeight)
         {
             lives--;
-            if (lives <= 0) state = GameplayState.Lost;
-            else ResetBall();
+            if (lives <= 0)
+            {
+                state = GameplayState.Lost;
+                soundEffects.Play(ProceduralSound.Lose);
+            }
+            else
+            {
+                soundEffects.Play(ProceduralSound.LoseLife);
+                ResetBall();
+            }
         }
     }
 }

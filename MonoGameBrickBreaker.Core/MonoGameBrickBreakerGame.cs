@@ -25,6 +25,7 @@ public class MonoGameBrickBreakerGame : Game
     private LevelSelectScreen levelSelect;
     private LevelEditorScreen editor;
     private GameplayScreen gameplay;
+    private ProceduralSoundEffects soundEffects;
     private Screen screen = Screen.MainMenu;
     private KeyboardState previousKeyboardState;
     private bool previousActionDown;
@@ -57,8 +58,15 @@ public class MonoGameBrickBreakerGame : Game
         mainMenu = new MainMenuScreen();
         levelSelect = new LevelSelectScreen();
         editor = new LevelEditorScreen(levels, levelFileService);
-        gameplay = new GameplayScreen(levels);
+        soundEffects = new ProceduralSoundEffects();
+        gameplay = new GameplayScreen(levels, soundEffects);
         previousKeyboardState = Keyboard.GetState();
+    }
+
+    protected override void UnloadContent()
+    {
+        soundEffects.Dispose();
+        base.UnloadContent();
     }
 
     protected override void Update(GameTime gameTime)
