@@ -28,6 +28,7 @@ public sealed class GameplayScreen
     private int currentLevelIndex;
     private int score;
     private int lives;
+    private int brickStreak;
     private int lastMouseX;
 
     public GameplayScreen(LevelDefinition[] levels, ProceduralSoundEffects soundEffects)
@@ -44,6 +45,7 @@ public sealed class GameplayScreen
         currentLevelIndex = MathHelper.Clamp(levelIndex, 0, GameConstants.TotalLevels - 1);
         if (resetScore) score = 0;
         lives = GameConstants.StartingLives;
+        brickStreak = 0;
         BuildBricks();
         ResetBall();
     }
@@ -86,6 +88,8 @@ public sealed class GameplayScreen
         renderer.DrawString($"Level {currentLevelIndex + 1}/{GameConstants.TotalLevels}", new Vector2(10, 10),
             Color.White);
         renderer.DrawString($"Score: {score}", new Vector2(160, 10), Color.White);
+        renderer.DrawString($"Chain: +{brickStreak}", new Vector2(330, 10),
+            brickStreak > 0 ? Color.Gold : Color.Gray);
         renderer.DrawString($"Lives: {lives}", new Vector2(GameConstants.ScreenWidth - 110, 10), Color.White);
 
         string message = state switch
@@ -188,6 +192,7 @@ public sealed class GameplayScreen
             float speed = ballVelocity.Length();
             ballVelocity = new Vector2(offset, -(float)Math.Sqrt(1 - offset * offset)) * speed;
             ballPosition.Y = paddle.Top - GameConstants.BallSize;
+            brickStreak = 0;
             soundEffects.Play(ProceduralSound.PaddleHit);
         }
 
@@ -197,12 +202,14 @@ public sealed class GameplayScreen
             Rectangle overlap = Rectangle.Intersect(ball, bricks[i]);
             if (overlap.Width < overlap.Height) ballVelocity.X = -ballVelocity.X;
             else ballVelocity.Y = -ballVelocity.Y;
-            score += brickPoints[i];
+            score += brickPoints[i] + (brickStreak * 5);
+            float brickBreakPitch = MathHelper.Clamp(brickStreak * 0.04f, 0f, 0.6f);
+            brickStreak++;
             bricks.RemoveAt(i);
             brickColors.RemoveAt(i);
             brickPoints.RemoveAt(i);
             ballVelocity *= 1.01f;
-            soundEffects.Play(ProceduralSound.BrickBreak);
+            soundEffects.Play(ProceduralSound.BrickBreak, brickBreakPitch);
             break;
         }
 
@@ -214,6 +221,7 @@ public sealed class GameplayScreen
         else if (ballPosition.Y > GameConstants.ScreenHeight)
         {
             lives--;
+            brickStreak = 0;
             if (lives <= 0)
             {
                 state = GameplayState.Lost;

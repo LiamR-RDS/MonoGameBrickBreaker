@@ -32,9 +32,9 @@ public sealed class ProceduralSoundEffects : IDisposable
         sounds[ProceduralSound.Lose] = CreateSweep(300, 80, 0.45f);
     }
 
-    public void Play(ProceduralSound sound)
+    public void Play(ProceduralSound sound, float pitch = 0f)
     {
-        sounds[sound].Play();
+        sounds[sound].Play(1f, pitch, 0f);
     }
 
     public void Dispose()
